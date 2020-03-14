@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# author:  Bas Huis
+# website: https://github.com/bas080/barkdown
+# created: Sat Mar 14 06:54:17 CET 2020
+# changed: Sat Mar 14 06:46:01 CET 2020
+# license: GNU General Public License 3.0
+
+set -eo pipefail
+
+file="$1"
+close=1
+
+[ -x "$file" ] && [ -z ${BARKDOWN:-} ] && {
+  export BARKDOWN="called"
+  $0 <(tail -n +3 < "$file")
+  exit
+}
+
+while IFS='' read -r line; do
+  [[ $line == \$* ]] && {
+    while read -r _ command; do
+      [ $close -eq 1 ] && printf '```bash\n'
+
+      printf '%s\n%s\n' "$line" "$(eval "$command")"
+    done <<< "$line"
+    close=0
+    continue
+  }
+
+  [ $close -eq 0 ] && {
+    printf '```\n'
+  }
+
+  close=1
+
+  echo "$line"
+done < "$file"
+
+[ $close -eq 0 ] && {
+  printf '```\n'
+}
