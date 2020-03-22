@@ -11,7 +11,7 @@ set -eo pipefail
 file="$1"
 close=1
 
-[ -x "$file" ] && [ -z ${BARKDOWN:-} ] && {
+[ -x "$file" ] && [ -z "${BARKDOWN:-}" ] && {
   export BARKDOWN="called"
   $0 <(tail -n +3 < "$file")
   exit
@@ -20,6 +20,7 @@ close=1
 while IFS='' read -r line; do
   [[ $line == \$* ]] && {
     while read -r _ command; do
+      # shellcheck disable=SC2016
       [ $close -eq 1 ] && printf '```bash\n'
 
       printf '%s\n%s\n' "$line" "$(eval "$command")"
@@ -29,6 +30,7 @@ while IFS='' read -r line; do
   }
 
   [ $close -eq 0 ] && {
+    # shellcheck disable=SC2016
     printf '```\n'
   }
 
@@ -38,5 +40,6 @@ while IFS='' read -r line; do
 done < "$file"
 
 [ $close -eq 0 ] && {
+  # shellcheck disable=SC2016
   printf '```\n'
 }
