@@ -2,6 +2,8 @@
 
 # Barkdown
 
+> **EXPERIMENTAL**
+
 Demonstrate the execution of terminal commands easily.
 
 Instead of typing out or copy pasting the commands and their outputs you can
@@ -17,7 +19,7 @@ see what this README looks like before running it through `barkdown`.
 > Prefixed with two spaces to prevent confusing the $ of the file for
   a command.
 
-$ sed 's/^/\  /g' < ./README.bd
+`$ sed 's/^/\  /g' < ./README.bd`
 
 ## License
 

@@ -6,10 +6,16 @@
 # changed: Sat Mar 14 06:46:01 CET 2020
 # license: GNU General Public License 3.0
 
-set -eo pipefail
+# set -eo pipefail
 
 file="$1"
-close=1
+opens=""
+
+[ -z "${file:-}" ] && {
+  >&2 echo './README.bd > ./README.md'
+  ./README.bd > ./README.md
+  exit
+}
 
 [ -x "$file" ] && [ -z "${BARKDOWN:-}" ] && {
   export BARKDOWN="called"
@@ -17,29 +23,39 @@ close=1
   exit
 }
 
-while IFS='' read -r line; do
-  [[ $line == \$* ]] && {
-    while read -r _ command; do
-      # shellcheck disable=SC2016
-      [ $close -eq 1 ] && printf '```bash\n'
+backtick='`'
+emptystring=''
 
-      printf '%s\n%s\n' "$line" "$(eval "$command")"
-    done <<< "$line"
-    close=0
+eval_line() {
+  while read -r _ command; do
+    command="${command/$backtick/$emptystring}"
+    # shellcheck disable=SC2016
+
+    printf '$ %s\n%s\n' "$command" "$(eval "$command")"
+  done <<< "$1"
+}
+
+while IFS='' read -r line; do
+  [[ "$line" == '`$'* ]] && {
+    printf '```\n'
+    eval_line "$line"
+    printf '```\n'
     continue
   }
 
-  [ $close -eq 0 ] && {
-    # shellcheck disable=SC2016
-    printf '```\n'
+  [[ ! -z "$opens" ]] && [[ "$line" == '$ '* ]] && {
+    eval_line "$line"
+    continue
   }
 
-  close=1
+  # Should only work for bash and sh scripts. Considering filtering that here.
+  [[ "$line" == '```'* ]] && {
+    if [ -z "$opens" ]; then
+      opens="$line"
+    else
+      opens=""
+    fi
+  }
 
   echo "$line"
 done < "$file"
-
-[ $close -eq 0 ] && {
-  # shellcheck disable=SC2016
-  printf '```\n'
-}
