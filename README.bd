@@ -1,4 +1,8 @@
-#!./barkdown
+#!/usr/bin/env barkdown
+
+# Deprecated
+
+Instead have a look at [Markatzea][1].
 
 # Barkdown
 
@@ -24,3 +28,5 @@ see what this README looks like before running it through `barkdown`.
 ## License
 
 GNU General Public License 3.0
+
+[1]:https://github.com/bas080/markatzea
